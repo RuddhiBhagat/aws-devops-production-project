@@ -10,6 +10,26 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devops -d devopsdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  flask-app:
+    build: .
+    container_name: devops-flask-app
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: devopsdb
+      DB_USER: devops
+      DB_PASSWORD: devopspassword
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:
